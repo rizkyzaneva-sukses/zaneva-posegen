@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Setup — Zaneva PoseGen</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>tailwind.config = { darkMode: 'class' }</script>
+</head>
+<body class="dark bg-[#0F172A] min-h-screen flex items-center justify-center p-4">
+  <div class="w-full max-w-lg">
+    <div class="text-center mb-8">
+      <div class="text-4xl mb-3">⚙️</div>
+      <h1 class="text-2xl font-bold text-white">Setup Vertex AI</h1>
+      <p class="text-slate-400 text-sm mt-1">Upload Service Account JSON dari Google Cloud Console</p>
+    </div>
+
+    <div class="bg-slate-800 rounded-2xl p-8 shadow-xl">
+      {% with messages = get_flashed_messages() %}
+        {% if messages %}
+          <div class="bg-red-500/20 border border-red-500/50 text-red-300 rounded-lg px-4 py-3 mb-4 text-sm">
+            {{ messages[0] }}
+          </div>
+        {% endif %}
+      {% endwith %}
+
+      {% if status == 'ok' %}
+        <div class="bg-emerald-500/20 border border-emerald-500/50 text-emerald-300 rounded-lg px-4 py-4 mb-6">
+          <div class="flex items-center gap-2 font-semibold">
+            <span>✅</span> Koneksi Berhasil!
+          </div>
+          <p class="text-sm mt-1">Project ID: <strong>{{ project_id }}</strong></p>
+          <p class="text-sm text-emerald-400 mt-1">Region: us-central1</p>
+        </div>
+        <a href="/login"
+          class="block w-full text-center bg-emerald-600 hover:bg-emerald-500 text-white font-semibold
+                 py-3 rounded-lg transition-colors">
+          Mulai Gunakan App →
+        </a>
+      {% else %}
+        {% if already_configured %}
+          <div class="bg-blue-500/20 border border-blue-500/50 text-blue-300 rounded-lg px-4 py-3 mb-6 text-sm">
+            ℹ️ Service Account sudah terkonfigurasi. Upload ulang untuk mengganti.
+          </div>
+        {% endif %}
+
+        <form method="POST" enctype="multipart/form-data">
+          <div class="mb-6">
+            <label class="block text-slate-300 text-sm font-medium mb-2">
+              File Service Account JSON
+            </label>
+            <div id="drop-zone"
+              class="border-2 border-dashed border-slate-600 rounded-xl p-8 text-center cursor-pointer
+                     hover:border-emerald-500 transition-colors">
+              <div class="text-3xl mb-2">📄</div>
+              <p class="text-slate-400 text-sm" id="drop-label">Klik atau drag file di sini</p>
+              <p class="text-slate-500 text-xs mt-1">service-account.json</p>
+              <input type="file" name="sa_file" id="sa-input" accept=".json"
+                class="hidden" required>
+            </div>
+          </div>
+
+          <button type="submit"
+            class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-semibold
+                   py-3 rounded-lg transition-colors">
+            Upload & Test Koneksi
+          </button>
+        </form>
+
+        <div class="mt-6 bg-slate-700/50 rounded-xl p-4">
+          <p class="text-slate-400 text-xs font-medium mb-2">Cara mendapatkan Service Account:</p>
+          <ol class="text-slate-500 text-xs space-y-1 list-decimal list-inside">
+            <li>Buka Google Cloud Console</li>
+            <li>IAM & Admin → Service Accounts</li>
+            <li>Buat SA baru dengan role "Vertex AI User"</li>
+            <li>Buat key baru → JSON → Download</li>
+          </ol>
+        </div>
+      {% endif %}
+    </div>
+  </div>
+
+  <script>
+    const dropZone = document.getElementById('drop-zone');
+    const saInput = document.getElementById('sa-input');
+    const dropLabel = document.getElementById('drop-label');
+
+    dropZone.addEventListener('click', () => saInput.click());
+    saInput.addEventListener('change', (e) => {
+      if (e.target.files[0]) {
+        dropLabel.textContent = e.target.files[0].name;
+        dropZone.classList.add('border-emerald-500');
+      }
+    });
+    dropZone.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      dropZone.classList.add('border-emerald-500');
+    });
+    dropZone.addEventListener('drop', (e) => {
+      e.preventDefault();
+      const file = e.dataTransfer.files[0];
+      if (file) {
+        const dt = new DataTransfer();
+        dt.items.add(file);
+        saInput.files = dt.files;
+        dropLabel.textContent = file.name;
+      }
+    });
+  </script>
+</body>
+</html>

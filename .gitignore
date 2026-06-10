@@ -1,0 +1,22 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+dist/
+build/
+.venv/
+venv/
+
+# Env
+.env
+
+# Service Account (JANGAN PERNAH COMMIT!)
+config/service-account.json
+config/*.json
+
+# Temp files
+tmp_posegen/
+*.zip
+
+# OS
+.DS_Store

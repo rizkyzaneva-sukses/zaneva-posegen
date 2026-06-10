@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Zaneva PoseGen</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>tailwind.config = { darkMode: 'class' }</script>
+  <style>
+    .pose-card { transition: transform 0.2s, box-shadow 0.2s; }
+    .pose-card:hover { transform: translateY(-2px); }
+    .progress-bar { transition: width 0.4s ease; }
+    @keyframes pulse-dot { 0%,100%{opacity:1} 50%{opacity:0.4} }
+    .pulse-dot { animation: pulse-dot 1.2s ease-in-out infinite; }
+  </style>
+</head>
+<body class="dark bg-[#0F172A] min-h-screen text-white">
+
+  <!-- Navbar -->
+  <nav class="bg-slate-900 border-b border-slate-800 px-6 py-4 flex items-center justify-between">
+    <div class="flex items-center gap-3">
+      <span class="text-2xl">👗</span>
+      <div>
+        <h1 class="text-lg font-bold text-white">Zaneva PoseGen</h1>
+        <p class="text-xs text-slate-500">Generator 25 Pose Model Virtual</p>
+      </div>
+    </div>
+    <div class="flex items-center gap-3">
+      <a href="/setup" class="text-slate-400 hover:text-white text-sm transition-colors">⚙️ Setup</a>
+      <a href="/logout" class="text-slate-400 hover:text-red-400 text-sm transition-colors">Logout</a>
+    </div>
+  </nav>
+
+  <div class="max-w-6xl mx-auto px-4 py-8">
+
+    <!-- Step 1: Upload & Config -->
+    <div id="panel-upload" class="">
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+
+        <!-- Upload Foto -->
+        <div class="bg-slate-800 rounded-2xl p-6">
+          <h2 class="text-lg font-semibold mb-4 flex items-center gap-2">
+            <span class="bg-emerald-600 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs font-bold">1</span>
+            Upload Foto Produk
+          </h2>
+
+          <div id="upload-zone"
+            class="border-2 border-dashed border-slate-600 rounded-xl p-8 text-center cursor-pointer
+                   hover:border-emerald-500 transition-colors">
+            <div class="text-4xl mb-3">📸</div>
+            <p class="text-slate-300 font-medium">Klik atau drag foto di sini</p>
+            <p class="text-slate-500 text-sm mt-1">1–5 foto • JPG/PNG/WEBP • Max 10MB per foto</p>
+            <p class="text-slate-600 text-xs mt-1">Flat lay atau foto model + baju</p>
+            <input type="file" id="photo-input" multiple accept=".jpg,.jpeg,.png,.webp" class="hidden">
+          </div>
+
+          <div id="preview-grid" class="grid grid-cols-3 gap-2 mt-4 hidden"></div>
+          <p id="upload-count" class="text-slate-400 text-sm mt-2 hidden"></p>
+        </div>
+
+        <!-- Konfigurasi -->
+        <div class="bg-slate-800 rounded-2xl p-6">
+          <h2 class="text-lg font-semibold mb-4 flex items-center gap-2">
+            <span class="bg-emerald-600 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs font-bold">2</span>
+            Konfigurasi
+          </h2>
+
+          <div class="space-y-4">
+            <div>
+              <label class="block text-slate-300 text-sm font-medium mb-1">Nama Produk</label>
+              <input type="text" id="product-name" placeholder="Contoh: Aires x Kyra Dusty Rose"
+                class="w-full bg-slate-700 text-white rounded-lg px-4 py-2.5 border border-slate-600
+                       focus:outline-none focus:border-emerald-500 text-sm">
+            </div>
+
+            <div>
+              <label class="block text-slate-300 text-sm font-medium mb-2">Tipe Badan Model</label>
+              <div class="grid grid-cols-3 gap-2">
+                <label class="radio-btn">
+                  <input type="radio" name="body_type" value="slim" class="hidden">
+                  <span class="block text-center py-2 rounded-lg border border-slate-600 text-sm cursor-pointer
+                               hover:border-emerald-500 transition-colors">Slim</span>
+                </label>
+                <label class="radio-btn">
+                  <input type="radio" name="body_type" value="average" checked class="hidden">
+                  <span class="block text-center py-2 rounded-lg border border-emerald-500 bg-emerald-500/10
+                               text-sm cursor-pointer transition-colors">Average</span>
+                </label>
+                <label class="radio-btn">
+                  <input type="radio" name="body_type" value="plus" class="hidden">
+                  <span class="block text-center py-2 rounded-lg border border-slate-600 text-sm cursor-pointer
+                               hover:border-emerald-500 transition-colors">Plus Size</span>
+                </label>
+              </div>
+            </div>
+
+            <div>
+              <label class="block text-slate-300 text-sm font-medium mb-2">Background</label>
+              <div class="grid grid-cols-2 gap-2">
+                <label class="radio-btn-bg">
+                  <input type="radio" name="background" value="putih" checked class="hidden">
+                  <span class="block text-center py-2 rounded-lg border border-emerald-500 bg-emerald-500/10
+                               text-sm cursor-pointer transition-colors">⬜ Putih Bersih</span>
+                </label>
+                <label class="radio-btn-bg">
+                  <input type="radio" name="background" value="abu" class="hidden">
+                  <span class="block text-center py-2 rounded-lg border border-slate-600 text-sm cursor-pointer
+                               hover:border-emerald-500 transition-colors">□ Abu Studio</span>
+                </label>
+                <label class="radio-btn-bg">
+                  <input type="radio" name="background" value="outdoor" class="hidden">
+                  <span class="block text-center py-2 rounded-lg border border-slate-600 text-sm cursor-pointer
+                               hover:border-emerald-500 transition-colors">🌿 Outdoor Blur</span>
+                </label>
+                <label class="radio-btn-bg">
+                  <input type="radio" name="background" value="transparan" class="hidden">
+                  <span class="block text-center py-2 rounded-lg border border-slate-600 text-sm cursor-pointer
+                               hover:border-emerald-500 transition-colors">🔳 Transparan</span>
+                </label>
+              </div>
+            </div>
+
+            <!-- Estimasi Biaya -->
+            <div class="bg-slate-700/50 rounded-xl p-3">
+              <p class="text-slate-400 text-xs">
+                💰 Estimasi biaya: 25 foto &times; ~$0.002 = <strong class="text-emerald-400">~$0.05</strong>
+                <span class="text-slate-500">(Vertex AI Imagen, us-central1)</span>
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tombol Generate -->
+      <div class="mt-6 text-center">
+        <button id="btn-generate"
+          class="bg-emerald-600 hover:bg-emerald-500 disabled:bg-slate-600 disabled:cursor-not-allowed
+                 text-white font-semibold px-10 py-4 rounded-xl text-lg transition-colors"
+          disabled>
+          ⚡ Generate 25 Pose
+        </button>
+        <p id="btn-hint" class="text-slate-500 text-sm mt-2">Upload foto produk dulu untuk mulai</p>
+      </div>
+    </div>
+
+    <!-- Step 2: Progress -->
+    <div id="panel-progress" class="hidden">
+      <div class="bg-slate-800 rounded-2xl p-6 mb-6">
+        <div class="flex items-center justify-between mb-3">
+          <h2 class="text-lg font-semibold">Generating Poses...</h2>
+          <span id="progress-counter" class="text-emerald-400 font-mono font-bold text-lg">0 / 25</span>
+        </div>
+        <div class="w-full bg-slate-700 rounded-full h-3 overflow-hidden">
+          <div id="progress-bar" class="progress-bar bg-emerald-500 h-3 rounded-full" style="width:0%"></div>
+        </div>
+        <div class="flex items-center justify-between mt-2">
+          <p id="progress-label" class="text-slate-400 text-sm">Memulai...</p>
+          <p id="eta-label" class="text-slate-500 text-xs"></p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Step 3: Gallery -->
+    <div id="panel-gallery" class="hidden">
+      <div class="flex items-center justify-between mb-6">
+        <div>
+          <h2 class="text-xl font-bold" id="gallery-title">Hasil Generate</h2>
+          <p class="text-slate-400 text-sm mt-0.5" id="gallery-subtitle"></p>
+        </div>
+        <div class="flex gap-3">
+          <button id="btn-retry-all"
+            class="bg-amber-600 hover:bg-amber-500 text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors hidden">
+            🔄 Retry Gagal
+          </button>
+          <button id="btn-download-all"
+            class="bg-emerald-600 hover:bg-emerald-500 text-white font-semibold px-5 py-2.5 rounded-lg transition-colors">
+            ⬇️ Download Semua (ZIP)
+          </button>
+          <button id="btn-new"
+            class="bg-slate-700 hover:bg-slate-600 text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors">
+            + Produk Baru
+          </button>
+        </div>
+      </div>
+
+      <!-- Groups -->
+      <div id="gallery-groups" class="space-y-8"></div>
+    </div>
+  </div>
+
+  <!-- Modal Preview -->
+  <div id="modal" class="fixed inset-0 bg-black/80 z-50 hidden flex items-center justify-center p-4">
+    <div class="relative max-w-2xl w-full">
+      <button id="modal-close"
+        class="absolute -top-10 right-0 text-white text-2xl hover:text-slate-300">&times;</button>
+      <img id="modal-img" src="" class="w-full rounded-xl shadow-2xl">
+      <div class="mt-3 flex items-center justify-between">
+        <p id="modal-label" class="text-slate-300 text-sm"></p>
+        <a id="modal-download" href="#" download
+          class="text-emerald-400 hover:text-emerald-300 text-sm">⬇️ Download</a>
+      </div>
+    </div>
+  </div>
+
+  <script>
+  const POSE_GROUPS = {
+    A: { name: 'A — Berdiri', poses: ['A1','A2','A3','A4','A5'] },
+    B: { name: 'B — Olahraga', poses: ['B1','B2','B3','B4','B5'] },
+    C: { name: 'C — Casual', poses: ['C1','C2','C3','C4','C5'] },
+    D: { name: 'D — Detail', poses: ['D1','D2','D3','D4','D5'] },
+    E: { name: 'E — Candid', poses: ['E1','E2','E3','E4','E5'] },
+  };
+  const POSE_LABELS = {
+    A1:'Berdiri Tegak',A2:'Tangan di Pinggang',A3:'3/4 Angle',A4:'Tampak Belakang',A5:'Menoleh Samping',
+    B1:'Pose Lari',B2:'Pemanasan',B3:'Squat',B4:'Melompat',B5:'Yoga / Plank',
+    C1:'Duduk Santai',C2:'Selfie Pose',C3:'Berjalan Kasual',C4:'Pegang Tas',C5:'Outdoor Casual',
+    D1:'Detail Dada',D2:'Tekstur Bahan',D3:'Detail Aksen',D4:'Full Siluet',D5:'Medium Shot',
+    E1:'Tertawa Natural',E2:'Buka Outer',E3:'Balik Badan',E4:'Pose Dinamis',E5:'Candid HP',
+  };
+
+  let sessionId = null;
+  let doneCount = 0;
+  let failedPoses = [];
+  let startTime = null;
+
+  // ---- Upload ----
+  const uploadZone = document.getElementById('upload-zone');
+  const photoInput = document.getElementById('photo-input');
+  const previewGrid = document.getElementById('preview-grid');
+  const uploadCount = document.getElementById('upload-count');
+  const btnGenerate = document.getElementById('btn-generate');
+  const btnHint = document.getElementById('btn-hint');
+
+  uploadZone.addEventListener('click', () => photoInput.click());
+  uploadZone.addEventListener('dragover', (e) => { e.preventDefault(); uploadZone.classList.add('border-emerald-500'); });
+  uploadZone.addEventListener('dragleave', () => uploadZone.classList.remove('border-emerald-500'));
+  uploadZone.addEventListener('drop', (e) => {
+    e.preventDefault();
+    photoInput.files = e.dataTransfer.files;
+    handleFiles(e.dataTransfer.files);
+  });
+  photoInput.addEventListener('change', (e) => handleFiles(e.target.files));
+
+  function handleFiles(files) {
+    if (!files.length) return;
+    previewGrid.innerHTML = '';
+    previewGrid.classList.remove('hidden');
+    uploadCount.classList.remove('hidden');
+    uploadCount.textContent = `${files.length} foto dipilih`;
+
+    Array.from(files).forEach(f => {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const img = document.createElement('img');
+        img.src = e.target.result;
+        img.className = 'w-full h-24 object-cover rounded-lg';
+        previewGrid.appendChild(img);
+      };
+      reader.readAsDataURL(f);
+    });
+
+    btnGenerate.disabled = false;
+    btnHint.textContent = 'Siap generate — set konfigurasi dulu jika perlu';
+  }
+
+  // ---- Radio buttons styling ----
+  document.querySelectorAll('.radio-btn input[type=radio]').forEach(radio => {
+    radio.addEventListener('change', () => {
+      document.querySelectorAll('.radio-btn span').forEach(s => {
+        s.className = s.className.replace('border-emerald-500 bg-emerald-500/10', 'border-slate-600');
+      });
+      radio.nextElementSibling.className = radio.nextElementSibling.className
+        .replace('border-slate-600', 'border-emerald-500 bg-emerald-500/10');
+    });
+  });
+  document.querySelectorAll('.radio-btn-bg input[type=radio]').forEach(radio => {
+    radio.addEventListener('change', () => {
+      document.querySelectorAll('.radio-btn-bg span').forEach(s => {
+        s.className = s.className
+          .replace('border-emerald-500 bg-emerald-500/10', 'border-slate-600');
+      });
+      radio.nextElementSibling.className = radio.nextElementSibling.className
+        .replace('border-slate-600', 'border-emerald-500 bg-emerald-500/10');
+    });
+  });
+
+  // ---- Generate ----
+  btnGenerate.addEventListener('click', async () => {
+    const files = photoInput.files;
+    if (!files.length) return;
+
+    // Upload dulu
+    const formData = new FormData();
+    Array.from(files).forEach(f => formData.append('photos', f));
+
+    btnGenerate.disabled = true;
+    btnGenerate.textContent = 'Uploading...';
+
+    const upRes = await fetch('/upload', { method: 'POST', body: formData });
+    const upData = await upRes.json();
+    if (!upRes.ok) {
+      alert(upData.error || 'Upload gagal');
+      btnGenerate.disabled = false;
+      btnGenerate.textContent = '⚡ Generate 25 Pose';
+      return;
+    }
+    sessionId = upData.session_id;
+
+    const productName = document.getElementById('product-name').value || 'Produk';
+    const bodyType = document.querySelector('input[name=body_type]:checked').value;
+    const background = document.querySelector('input[name=background]:checked').value;
+
+    const genRes = await fetch('/generate', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ product_name: productName, body_type: bodyType, background })
+    });
+    const genData = await genRes.json();
+    if (!genRes.ok) {
+      alert(genData.error || 'Generate gagal dimulai');
+      btnGenerate.disabled = false;
+      btnGenerate.textContent = '⚡ Generate 25 Pose';
+      return;
+    }
+
+    // Tampilkan panel progress + gallery
+    document.getElementById('panel-upload').classList.add('hidden');
+    document.getElementById('panel-progress').classList.remove('hidden');
+    document.getElementById('panel-gallery').classList.remove('hidden');
+    initGallery();
+    startTime = Date.now();
+    listenProgress();
+  });
+
+  // ---- Init gallery grid ----
+  function initGallery() {
+    const container = document.getElementById('gallery-groups');
+    container.innerHTML = '';
+    Object.entries(POSE_GROUPS).forEach(([key, group]) => {
+      const section = document.createElement('div');
+      section.innerHTML = `
+        <h3 class="text-base font-semibold text-slate-300 mb-3">${group.name}</h3>
+        <div class="grid grid-cols-5 gap-3" id="group-${key}"></div>
+      `;
+      container.appendChild(section);
+
+      const grid = document.getElementById(`group-${key}`);
+      group.poses.forEach(pid => {
+        const card = document.createElement('div');
+        card.id = `card-${pid}`;
+        card.className = 'pose-card bg-slate-800 rounded-xl overflow-hidden';
+        card.innerHTML = `
+          <div class="aspect-[2/3] bg-slate-700 flex items-center justify-center" id="img-wrap-${pid}">
+            <div class="text-center">
+              <div class="pulse-dot text-2xl">⏳</div>
+              <p class="text-slate-500 text-xs mt-1">${pid}</p>
+            </div>
+          </div>
+          <div class="p-2">
+            <p class="text-xs text-slate-400 truncate">${POSE_LABELS[pid]}</p>
+            <div class="flex gap-1 mt-1" id="actions-${pid}"></div>
+          </div>
+        `;
+        grid.appendChild(card);
+      });
+    });
+  }
+
+  // ---- SSE Progress ----
+  function listenProgress() {
+    const evtSource = new EventSource(`/progress/${sessionId}`);
+    doneCount = 0;
+    failedPoses = [];
+
+    evtSource.addEventListener('pose_start', (e) => {
+      const d = JSON.parse(e.data);
+      updateCard(d.pose_id, 'processing');
+    });
+
+    evtSource.addEventListener('pose_done', (e) => {
+      const d = JSON.parse(e.data);
+      doneCount++;
+      updateCard(d.pose_id, 'done', d.url);
+      updateProgress(d.index, d.total);
+    });
+
+    evtSource.addEventListener('pose_failed', (e) => {
+      const d = JSON.parse(e.data);
+      failedPoses.push(d.pose_id);
+      updateCard(d.pose_id, 'failed');
+      updateProgress(d.index, d.total);
+    });
+
+    evtSource.addEventListener('generate_complete', (e) => {
+      evtSource.close();
+      document.getElementById('panel-progress').classList.add('hidden');
+      const subtitle = document.getElementById('gallery-subtitle');
+      subtitle.textContent = `${doneCount} berhasil, ${failedPoses.length} gagal dari 25 pose`;
+      document.getElementById('gallery-title').textContent =
+        document.getElementById('product-name').value || 'Hasil Generate';
+      if (failedPoses.length > 0) {
+        document.getElementById('btn-retry-all').classList.remove('hidden');
+      }
+    });
+
+    evtSource.addEventListener('ping', () => {});
+  }
+
+  function updateProgress(idx, total) {
+    const pct = Math.round((idx / total) * 100);
+    document.getElementById('progress-bar').style.width = pct + '%';
+    document.getElementById('progress-counter').textContent = `${idx} / ${total}`;
+
+    if (startTime && idx > 0) {
+      const elapsed = (Date.now() - startTime) / 1000;
+      const eta = Math.round((elapsed / idx) * (total - idx));
+      document.getElementById('eta-label').textContent = eta > 0 ? `Estimasi ${eta}s tersisa` : '';
+    }
+  }
+
+  function updateCard(poseId, status, imgUrl) {
+    const wrap = document.getElementById(`img-wrap-${poseId}`);
+    const actions = document.getElementById(`actions-${poseId}`);
+    if (!wrap) return;
+
+    if (status === 'processing') {
+      wrap.innerHTML = `<div class="text-center"><div class="pulse-dot text-2xl">⏳</div><p class="text-xs text-slate-500 mt-1">Processing...</p></div>`;
+      document.getElementById('progress-label').textContent = `Generating ${poseId} — ${POSE_LABELS[poseId]}`;
+    } else if (status === 'done' && imgUrl) {
+      wrap.innerHTML = `<img src="${imgUrl}" class="w-full h-full object-cover cursor-pointer"
+        onclick="openModal('${imgUrl}', '${poseId}')">`;
+      actions.innerHTML = `
+        <a href="${imgUrl}" download class="text-xs text-emerald-400 hover:text-emerald-300">⬇️</a>
+        <button onclick="regenPose('${poseId}')" class="text-xs text-slate-400 hover:text-white ml-1">🔄</button>
+      `;
+    } else if (status === 'failed') {
+      wrap.innerHTML = `<div class="text-center"><div class="text-2xl">❌</div><p class="text-xs text-red-400 mt-1">Gagal</p></div>`;
+      actions.innerHTML = `<button onclick="regenPose('${poseId}')" class="text-xs text-amber-400 hover:text-amber-300">🔄 Retry</button>`;
+    }
+  }
+
+  // ---- Retry single pose ----
+  async function regenPose(poseId) {
+    updateCard(poseId, 'processing');
+    try {
+      const res = await fetch(`/retry/${sessionId}/${poseId}`, { method: 'POST' });
+      const data = await res.json();
+      if (res.ok && data.url) {
+        updateCard(poseId, 'done', data.url);
+        failedPoses = failedPoses.filter(p => p !== poseId);
+        if (failedPoses.length === 0) {
+          document.getElementById('btn-retry-all').classList.add('hidden');
+        }
+      } else {
+        updateCard(poseId, 'failed');
+        alert('Retry gagal: ' + (data.error || 'Unknown error'));
+      }
+    } catch {
+      updateCard(poseId, 'failed');
+    }
+  }
+
+  // ---- Retry all failed ----
+  document.getElementById('btn-retry-all').addEventListener('click', async () => {
+    const toRetry = [...failedPoses];
+    for (const pid of toRetry) {
+      await regenPose(pid);
+    }
+  });
+
+  // ---- Download all ----
+  document.getElementById('btn-download-all').addEventListener('click', () => {
+    if (sessionId) window.location.href = `/download-all/${sessionId}`;
+  });
+
+  // ---- New product ----
+  document.getElementById('btn-new').addEventListener('click', () => {
+    sessionId = null; doneCount = 0; failedPoses = [];
+    document.getElementById('panel-upload').classList.remove('hidden');
+    document.getElementById('panel-progress').classList.add('hidden');
+    document.getElementById('panel-gallery').classList.add('hidden');
+    document.getElementById('preview-grid').innerHTML = '';
+    document.getElementById('preview-grid').classList.add('hidden');
+    document.getElementById('upload-count').classList.add('hidden');
+    document.getElementById('product-name').value = '';
+    btnGenerate.disabled = true;
+    btnGenerate.textContent = '⚡ Generate 25 Pose';
+    btnHint.textContent = 'Upload foto produk dulu untuk mulai';
+    photoInput.value = '';
+  });
+
+  // ---- Modal ----
+  function openModal(url, poseId) {
+    document.getElementById('modal-img').src = url;
+    document.getElementById('modal-label').textContent = `${poseId} — ${POSE_LABELS[poseId]}`;
+    document.getElementById('modal-download').href = url;
+    document.getElementById('modal-download').download = `${poseId}.jpg`;
+    document.getElementById('modal').classList.remove('hidden');
+  }
+  document.getElementById('modal-close').addEventListener('click', () => {
+    document.getElementById('modal').classList.add('hidden');
+  });
+  document.getElementById('modal').addEventListener('click', (e) => {
+    if (e.target === document.getElementById('modal')) {
+      document.getElementById('modal').classList.add('hidden');
+    }
+  });
+  </script>
+</body>
+</html>

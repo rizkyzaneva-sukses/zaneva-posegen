@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login — Zaneva PoseGen</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>tailwind.config = { darkMode: 'class' }</script>
+</head>
+<body class="dark bg-[#0F172A] min-h-screen flex items-center justify-center">
+  <div class="w-full max-w-sm">
+    <div class="text-center mb-8">
+      <div class="text-4xl mb-3">👗</div>
+      <h1 class="text-2xl font-bold text-white">Zaneva PoseGen</h1>
+      <p class="text-slate-400 text-sm mt-1">Generator 25 Pose Model Virtual</p>
+    </div>
+
+    <div class="bg-slate-800 rounded-2xl p-8 shadow-xl">
+      {% with messages = get_flashed_messages() %}
+        {% if messages %}
+          <div class="bg-red-500/20 border border-red-500/50 text-red-300 rounded-lg px-4 py-3 mb-4 text-sm">
+            {{ messages[0] }}
+          </div>
+        {% endif %}
+      {% endwith %}
+
+      <form method="POST">
+        <div class="mb-6">
+          <label class="block text-slate-300 text-sm font-medium mb-2">Password</label>
+          <input type="password" name="password" autofocus
+            class="w-full bg-slate-700 text-white rounded-lg px-4 py-3 border border-slate-600
+                   focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500"
+            placeholder="Masukkan password">
+        </div>
+        <button type="submit"
+          class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-semibold
+                 py-3 rounded-lg transition-colors">
+          Masuk
+        </button>
+      </form>
+    </div>
+  </div>
+</body>
+</html>
